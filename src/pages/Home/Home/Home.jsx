@@ -2,6 +2,7 @@ import React from 'react';
 import Banner from '../Banner/Banner';
 import HowItWorks from '../HowItWorks/HowItWorks';
 import OurServices from '../OurServices/OurServices';
+import LogoMarquee from '../LogoMarquee/LogoMarquee';
 
 
 
@@ -11,6 +12,7 @@ const Home = () => {
             <Banner></Banner>
             <HowItWorks></HowItWorks>
             <OurServices></OurServices>
+            <LogoMarquee></LogoMarquee>
         </div>
     );
 };
