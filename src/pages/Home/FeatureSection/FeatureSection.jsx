@@ -24,7 +24,10 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section className="bg-slate-100 py-5 px-6">
+    <section data-aos="flip-left"
+     data-aos-easing="ease-out-cubic"
+     data-aos-duration="2000" className="bg-slate-100 py-5 px-6">
+    <div className="divider"></div>
       <div className="max-w-6xl mx-auto flex flex-col gap-8">
         {features.map((feature, index) => (
           <div 
@@ -36,7 +39,7 @@ const FeaturesSection = () => {
               <img 
                 src={feature.image} 
                 alt={feature.title} 
-                className="max-h-[150px] object-contain"
+                className="max-h-[130px] object-contain"
               />
             </div>
 
@@ -55,6 +58,7 @@ const FeaturesSection = () => {
           </div>
         ))}
       </div>
+      <div className="divider"></div>
     </section>
   );
 };
