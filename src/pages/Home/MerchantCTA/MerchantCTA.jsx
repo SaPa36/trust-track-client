@@ -30,6 +30,9 @@ const MerchantCTA = () => {
               <button className="btn border-none bg-trust-lime text-trust-dark hover:bg-white rounded-full px-8">
                 Become a Merchant
               </button>
+              <button className="btn btn-outline  text-white hover:bg-trust-lime hover:text-trust-dark rounded-full px-8">
+                Earn With Profast Courier
+              </button>
             </div>
           </div>
         </div>

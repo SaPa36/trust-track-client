@@ -6,6 +6,7 @@ import LogoMarquee from '../LogoMarquee/LogoMarquee';
 import FeaturesSection from '../FeatureSection/FeatureSection';
 import MerchantCTA from '../MerchantCTA/MerchantCTA';
 import Testimonials from '../Testimonials/Testimonials';
+import FAQSection from '../FAQSection/FAQSection';
 
 
 
@@ -19,6 +20,7 @@ const Home = () => {
             <FeaturesSection></FeaturesSection>
             <MerchantCTA></MerchantCTA>
             <Testimonials></Testimonials>
+            <FAQSection></FAQSection>
         </div>
     );
 };
