@@ -39,21 +39,22 @@ const OurServices = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   return (
-    <section className="bg-[#002B2B] py-20 px-6 rounded-[40px] m-4">
+    <section className="bg-[#002B2B] py-20 px-3 md:px-6 rounded-[40px] md:m-4">
       <div className="max-w-7xl mx-auto text-center">
         <h2 className="text-4xl font-bold text-white mb-4">Our Services</h2>
         <p className="text-slate-300 max-w-2xl mx-auto mb-16 text-sm leading-relaxed">
           Enjoy fast, reliable parcel delivery with real-time tracking and zero hassle. 
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div data-aos="fade-up"  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service, index) => {
             // [3] Check if this specific card is the one being hovered
             const isHovered = hoveredIndex === index;
 
             return (
-              <div
+              <div 
                 key={index}
+                
                 onMouseEnter={() => setHoveredIndex(index)} // [4] Set index on hover
                 onMouseLeave={() => setHoveredIndex(null)}  // [5] Reset on leave
                 className={`p-10 rounded-[32px] flex flex-col items-center text-center transition-all duration-300 transform ${

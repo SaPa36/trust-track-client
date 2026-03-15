@@ -2,7 +2,7 @@ import React from 'react';
 // Import your line-art illustrations from your assets
 import trackingImg from '../../../assets/Illustration.png';
 import safeDeliveryImg from '../../../assets/Vector.png';
-import supportImg from '../../../assets/Vector.png';
+import supportImg from '../../../assets/tiny-deliveryman.png';
 
 const features = [
   {
@@ -24,21 +24,20 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section data-aos="flip-left"
-     data-aos-easing="ease-out-cubic"
-     data-aos-duration="2000" className="bg-slate-100 py-5 px-6">
-    <div className="divider"></div>
-      <div className="max-w-6xl mx-auto flex flex-col gap-8">
+    <section className="bg-slate-100 py-5 px-6">
+      <div className="divider"></div>
+      <div className=" max-w-6xl mx-auto flex flex-col gap-8">
         {features.map((feature, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="bg-white rounded-[32px] p-8  flex flex-col md:flex-row items-center gap-8  shadow-sm"
           >
             {/* Left Side: Illustration */}
-            <div className="w-full md:w-1/3 flex justify-center">
-              <img 
-                src={feature.image} 
-                alt={feature.title} 
+            <div 
+               className="w-full md:w-1/3 flex justify-center">
+              <img
+                src={feature.image}
+                alt={feature.title}
                 className="max-h-[130px] object-contain"
               />
             </div>
@@ -47,7 +46,8 @@ const FeaturesSection = () => {
             <div className="hidden md:block h-32 border-l-2 border-dashed border-slate-300"></div>
 
             {/* Right Side: Content */}
-            <div className="w-full md:w-2/3 text-left">
+            <div 
+               className="w-full md:w-2/3 text-left">
               <h3 className="text-2xl font-bold text-[#002B2B] mb-4">
                 {feature.title}
               </h3>
