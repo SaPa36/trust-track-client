@@ -3,6 +3,9 @@ import RootLayout from "../layouts/RootLayout";
 import Home from "../pages/Home/Home/Home";
 import About from "../pages/About/About";
 import RiderForm from "../pages/RiderForm/RiderForm";
+import AuthLayout from "../layouts/AuthLayout";
+import Login from "../pages/AuthLayout/Login/Login";
+
 
 export const router = createBrowserRouter([
     {
@@ -23,4 +26,14 @@ export const router = createBrowserRouter([
         }
       ]
     },
+    {
+      path: "/",
+      Component: AuthLayout,
+      children:[
+        {
+          path: "/login",
+          Component: Login
+        }
+      ]
+    }
   ]);
