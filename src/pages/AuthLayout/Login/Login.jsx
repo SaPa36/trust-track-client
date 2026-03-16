@@ -1,13 +1,31 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import useAuth from '../../../hooks/useAuth';
+import Swal from 'sweetalert2';
 
 const Login = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const {signIn} = useAuth();
+    const navigate = useNavigate();
 
   const onSubmit = (data) => {
-    console.log("Login Data:", data);
+      signIn(data.email, data.password)
+        .then(result => {
+            const user = result.user;
+            Swal.fire({
+                title: 'Success!',
+                text: 'You have successfully logged in.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+              });
+              reset();
+                navigate('/');
+        })
+        .catch(error => console.log(error));
+
   };
     return (
         <div>
