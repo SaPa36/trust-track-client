@@ -1,13 +1,14 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import useAuth from '../../../hooks/useAuth';
 import Swal from 'sweetalert2';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
-    const {createUser} = useAuth();
+    const {createUser, logOut} = useAuth();
+    const navigate = useNavigate();
 
   const onSubmit = (data) => {
      createUser(data.email, data.password)
@@ -22,6 +23,11 @@ const Register = () => {
             showConfirmButton: false,
           });
           reset();
+            logOut()
+            .then(() => {
+                navigate('/login');
+            })
+            .catch(error => console.log(error));
      })
      .catch(error => console.log(error));
   };
