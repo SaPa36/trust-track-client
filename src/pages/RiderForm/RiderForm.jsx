@@ -16,7 +16,7 @@ const RiderForm = () => {
         <h2 className="text-4xl font-bold text-[#002B2B] mb-2">Be a Rider</h2>
         <p className="text-slate-500 ">Enjoy fast, reliable parcel delivery with real-time tracking...</p>
 
-        <div className="bg-white mt-4 md:mt-0 md:p-6  rounded-3xl shadow-xl flex flex-col lg:flex-row gap-20 items-center">
+        <div className="bg-white mt-4 md:mt-0 md:pl-6  rounded-3xl shadow-xl flex flex-col lg:flex-row gap-20 items-center">
 
           {/* Form Side */}
           <form onSubmit={handleSubmit(onSubmit)} className="flex-1 w-full ">
