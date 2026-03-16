@@ -9,7 +9,7 @@ const AuthLayout = () => {
   
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4 font-urbanist">
+    <div className="min-h-screen flex items-center justify-center  p-4 font-urbanist">
       <div className="bg-white w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
         
         {/* Left Side: Form */}

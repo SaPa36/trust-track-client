@@ -6,7 +6,7 @@ import useAuth from '../../../hooks/useAuth';
 import Swal from 'sweetalert2';
 
 const Register = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const {createUser} = useAuth();
 
   const onSubmit = (data) => {
