@@ -20,14 +20,15 @@ const Login = () => {
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-[#002B2B]">Email</label>
                     <input
+                        type="email"
                         {...register("email", {
-                            required: "Email is required",
-                            pattern: { value: /^\S+@\S+$/i, message: "Invalid email" }
+                            required: true,
                         })}
-                        className={`p-3 border rounded-lg outline-none transition-all ${errors.email ? 'border-red-500' : 'border-slate-200 focus:border-trust-lime'}`}
-                        placeholder="Email"
+                        placeholder='Email'
+                        className='p-3 border rounded-lg outline-none transition-all
+                         border-slate-200 focus:border-trust-lime'
                     />
-                    {errors.email && <span className="text-red-500 text-xs">{errors.email.message}</span>}
+                    {errors.email?.type === 'required' && <span className="text-red-500 text-xs">Email is required</span>}
                 </div>
 
                 {/* Password Field */}
@@ -35,11 +36,29 @@ const Login = () => {
                     <label className="text-sm font-semibold text-[#002B2B]">Password</label>
                     <input
                         type="password"
-                        {...register("password", { required: "Password is required" })}
-                        className={`p-3 border rounded-lg outline-none transition-all ${errors.password ? 'border-red-500' : 'border-slate-200 focus:border-trust-lime'}`}
-                        placeholder="Password"
+                        {...register("password", {
+                            required: true,
+                            minLength: {
+                                value: 6,
+                                message: "Password must be at least 6 characters"
+                            },
+                            maxLength: {
+                                value: 20,
+                                message: "Password must be less than 20 characters"
+                            },
+                            pattern: {
+                                value: /^(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9]).*$/,
+                                message: "Password must include at least one uppercase letter, one special character, and one number"
+                            }
+                        })}
+                        placeholder='Password'
+                        className='p-3 border rounded-lg outline-none transition-all
+                         border-slate-200 focus:border-trust-lime'
                     />
-                    {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
+                    {errors.password?.type === 'required' && <span className="text-red-500 text-xs">Password is required</span>}
+                    {errors.password?.type === 'minLength' && <span className="text-red-500 text-xs">{errors.password.message}</span>}
+                    {errors.password?.type === 'maxLength' && <span className="text-red-500 text-xs">{errors.password.message}</span>}
+                    {errors.password?.type === 'pattern' && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                 </div>
 
                 <div className="text-right">

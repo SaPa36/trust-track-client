@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import ProFastLogo from "./ProFastLogo";
 import { MdOutlineArrowOutward } from "react-icons/md";
 
@@ -55,10 +55,14 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="navbar-end">
-        <button className="btn btn-ghost">Sign In</button>
-        <button className="btn border-none btn-primary bg-trust-lime text-black ml-2">Sign Up
-          <span className="text-2xl"><MdOutlineArrowOutward /></span>
-        </button>
+        <Link to="/login">
+          <button className="btn btn-ghost">Sign In</button>
+        </Link>
+        <Link to="/register">
+          <button className="btn border-none btn-primary bg-trust-lime text-black ml-2">Sign Up
+            <span className="text-2xl"><MdOutlineArrowOutward /></span>
+          </button>
+        </Link>
       </div>
     </div>
   );
