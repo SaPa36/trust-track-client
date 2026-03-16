@@ -4,6 +4,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { Link, useNavigate } from 'react-router';
 import useAuth from '../../../hooks/useAuth';
 import Swal from 'sweetalert2';
+import SocialLogin from '../SocialLogin/SocialLogin';
 
 const Login = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -83,10 +84,7 @@ const Login = () => {
                 <div className="flex items-center gap-2 text-slate-300">
                     <hr className="flex-1" /> <span className="text-xs text-slate-400">Or</span> <hr className="flex-1" />
                 </div>
-                <button className="w-full flex items-center justify-center gap-2 border bg-slate-200 border-slate-200 py-3 rounded-xl hover:bg-slate-50 transition-all">
-                    <FcGoogle className="text-xl" />
-                    <span className="text-sm font-medium text-slate-600">Login with google</span>
-                </button>
+                <SocialLogin></SocialLogin>
             </div>
         </div>
     );
