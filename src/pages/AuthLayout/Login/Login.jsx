@@ -27,7 +27,7 @@ const Login = () => {
                         })}
                         placeholder='Email'
                         className='p-3 border rounded-lg outline-none transition-all
-                         border-slate-200 focus:border-trust-lime'
+                         border-slate-300 focus:border-trust-lime'
                     />
                     {errors.email?.type === 'required' && <span className="text-red-500 text-xs">Email is required</span>}
                 </div>
@@ -39,27 +39,13 @@ const Login = () => {
                         type="password"
                         {...register("password", {
                             required: true,
-                            minLength: {
-                                value: 6,
-                                message: "Password must be at least 6 characters"
-                            },
-                            maxLength: {
-                                value: 20,
-                                message: "Password must be less than 20 characters"
-                            },
-                            pattern: {
-                                value: /^(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9]).*$/,
-                                message: "Password must include at least one uppercase letter, one special character, and one number"
-                            }
                         })}
                         placeholder='Password'
-                        className='p-3 border rounded-lg outline-none transition-all
-                         border-slate-200 focus:border-trust-lime'
+                        className='p-3 border border-slate-300 rounded-lg outline-none transition-all
+                          focus:border-trust-lime'
                     />
                     {errors.password?.type === 'required' && <span className="text-red-500 text-xs">Password is required</span>}
-                    {errors.password?.type === 'minLength' && <span className="text-red-500 text-xs">{errors.password.message}</span>}
-                    {errors.password?.type === 'maxLength' && <span className="text-red-500 text-xs">{errors.password.message}</span>}
-                    {errors.password?.type === 'pattern' && <span className="text-red-500 text-xs">{errors.password.message}</span>}
+                    
                 </div>
 
                 <div className="text-right">

@@ -2,12 +2,28 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
 import { Link } from 'react-router';
+import useAuth from '../../../hooks/useAuth';
+import Swal from 'sweetalert2';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const {createUser} = useAuth();
 
   const onSubmit = (data) => {
-    console.log("Register Data:", data);
+     createUser(data.email, data.password)
+     .then(result => {
+        const user = result.user;
+        console.log(user);
+        Swal.fire({
+            title: 'Success!',
+            text: 'Your account has been created.',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          reset();
+     })
+     .catch(error => console.log(error));
   };
     return (
         <div>
@@ -27,7 +43,7 @@ const Register = () => {
                         })}
                         placeholder='Name'
                         className='p-3 border rounded-lg outline-none transition-all
-                         border-slate-200 focus:border-trust-lime'
+                         border-slate-300 focus:border-trust-lime'
                     />
                     {errors.name?.type === 'required' && <span className="text-red-500 text-xs">Name is required</span>}
                 </div>
@@ -44,7 +60,7 @@ const Register = () => {
                         })}
                         placeholder='Email'
                         className='p-3 border rounded-lg outline-none transition-all
-                         border-slate-200 focus:border-trust-lime'
+                         border-slate-300 focus:border-trust-lime'
                     />
                     {errors.email?.type === 'required' && <span className="text-red-500 text-xs">Email is required</span>}
                 </div>
@@ -71,7 +87,7 @@ const Register = () => {
                         })}
                         placeholder='Password'
                         className='p-3 border rounded-lg outline-none transition-all
-                         border-slate-200 focus:border-trust-lime'
+                         border-slate-300 focus:border-trust-lime'
                     />
                     {errors.password?.type === 'required' && <span className="text-red-500 text-xs">Password is required</span>}
                     {errors.password?.type === 'minLength' && <span className="text-red-500 text-xs">{errors.password.message}</span>}
