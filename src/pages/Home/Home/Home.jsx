@@ -4,6 +4,9 @@ import HowItWorks from '../HowItWorks/HowItWorks';
 import OurServices from '../OurServices/OurServices';
 import LogoMarquee from '../LogoMarquee/LogoMarquee';
 import FeaturesSection from '../FeatureSection/FeatureSection';
+import MerchantCTA from '../MerchantCTA/MerchantCTA';
+import Testimonials from '../Testimonials/Testimonials';
+import FAQSection from '../FAQSection/FAQSection';
 
 
 
@@ -15,6 +18,9 @@ const Home = () => {
             <OurServices></OurServices>
             <LogoMarquee></LogoMarquee>
             <FeaturesSection></FeaturesSection>
+            <MerchantCTA></MerchantCTA>
+            <Testimonials></Testimonials>
+            <FAQSection></FAQSection>
         </div>
     );
 };

@@ -18,7 +18,7 @@ const logos = [
   
   const LogoMarquee = () => {
     return (
-      <div className="bg-[#f0f4f4] py-14 overflow-hidden">
+      <div className="bg-[#f0f4f4] py-14 overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 mb-10">
           <h2 className="text-center text-2xl font-bold text-[#002B2B]">
             We've helped thousands of sales teams

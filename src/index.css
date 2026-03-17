@@ -3,17 +3,29 @@
 @plugin "daisyui";
 
 .font-urbanist {
-    font-family: "Urbanist", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-  }
+  font-family: "Urbanist", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
 
-  @theme {
-    --animate-marquee: marquee 40s linear infinite;
+
+
+@theme {
+
+  /* custom Color */
+  --color-trust-lime: #D8EF6A;
+  --color-trust-dark: #002B2B;
   
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
     }
   }
+}
