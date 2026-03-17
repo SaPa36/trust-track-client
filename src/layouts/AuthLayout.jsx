@@ -16,6 +16,7 @@ const AuthLayout = () => {
         <div className="flex-1 p-2 ">
           <ProFastLogo />
           
+        {/* add a comment for the push code on github */}
           <div className='pl-4 md:pl-10'>
             <Outlet></Outlet>
           </div>
