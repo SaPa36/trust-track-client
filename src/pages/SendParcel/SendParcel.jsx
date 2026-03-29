@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
 
 const SendParcel = () => {
     const [allData, setAllData] = useState([]);
@@ -19,6 +20,10 @@ const SendParcel = () => {
 
     // 1. Watch the parcel type
     const selectedParcelType = watch("parcelType");
+    const weight = watch("weight") || 0;
+    // 2. Watch the selected regions
+    const selectedSenderRegion = watch("senderRegion");
+    const selectedReceiverRegion = watch("receiverRegion");
 
     // 1. Fetch JSON data on mount
     useEffect(() => {
@@ -39,17 +44,59 @@ const SendParcel = () => {
         }
     }, [selectedParcelType, setValue]);
 
-    // 2. Watch the selected regions
-    const selectedSenderRegion = watch("senderRegion");
-    const selectedReceiverRegion = watch("receiverRegion");
+    // Helper to calculate cost
+    const calculateCost = (data) => {
+        const isWithinCity = data.senderRegion === data.receiverRegion;
+        let total = 0;
 
+        if (data.parcelType === 'Document') {
+            total = isWithinCity ? 60 : 80;
+        } else {
+            // Non-Document logic
+            if (weight <= 3) {
+                total = isWithinCity ? 110 : 150;
+            } else {
+                // Base (up to 3kg) + 40 for every extra kg
+                const basePrice = isWithinCity ? 110 : 150;
+                const extraWeight = weight - 3;
+                total = basePrice + (extraWeight * 40);
+            }
+        }
+        return total;
+    };
+
+
+    const isWithinCity = (data) => data.senderRegion === data.receiverRegion;
     // 3. Filter Service Centers based on selection
     const senderCenters = allData.filter(item => item.region === selectedSenderRegion);
     const receiverCenters = allData.filter(item => item.region === selectedReceiverRegion);
 
     const onSubmit = (data) => {
-        console.log("Parcel Data:", data);
-        // You can send this to your backend/Firebase here
+        const finalCost = calculateCost(data);
+
+        Swal.fire({
+            title: 'Confirm Booking',
+            html: `
+                <div style="text-align: left;">
+                    <p><b>Parcel:</b> ${data.parcelName}</p>
+                    <p><b>Type:</b> ${data.parcelType}</p>
+                    <p><b>Destination:</b> ${isWithinCity(data) ? 'Within City' : 'Outside City'}</p>
+                    <hr>
+                    <h3 style="color: #9ACD32; text-align: center;">Total Cost: ৳${finalCost}</h3>
+                </div>
+            `,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#9ACD32',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Place Order'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Here you would typically perform your database push (Firebase/MongoDB)
+                Swal.fire('Success!', 'Your parcel order has been placed.', 'success');
+                console.log("Final Data to DB:", { ...data, cost: finalCost });
+            }
+        });
     };
 
     return (
@@ -98,163 +145,167 @@ const SendParcel = () => {
                                 disabled={selectedParcelType === 'Document'}
                                 placeholder="Parcel Weight (KG)"
                                 className={`w-full p-2 border rounded focus:outline-[#9ACD32] transition-colors ${selectedParcelType === 'Document'
-                                        ? 'bg-slate-100 border-slate-200 cursor-not-allowed opacity-50'
-                                        : 'border-slate-300 bg-white'
+                                    ? 'bg-slate-100 border-slate-200 cursor-not-allowed opacity-50'
+                                    : 'border-slate-300 bg-white'
                                     }`}
                             />
                             {errors.weight && <p className="text-red-500 text-xs mt-1">{errors.weight.message}</p>}
                         </div>
                     </div>
+
+
+                    {/* Sender & Receiver Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mt-5">
+
+                        {/* Sender Details */}
+                        <div className="space-y-4">
+                            <h3 className="font-bold text-[#002B2B] border-b pb-2">Sender Details</h3>
+
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'> {/* Parent container for the row */}
+
+                                {/* Sender Name Group */}
+                                <div className="flex flex-col">
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Name</label>
+                                    <input
+                                        {...register("senderName")}
+                                        placeholder="Sender Name"
+                                        className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]"
+                                    />
+                                </div>
+
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Contact No</label>
+                                    <input {...register("senderContact")} placeholder="Sender Contact No" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
+                                </div>
+
+                            </div>
+
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Region</label>
+                                    <select {...register("senderRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]">
+                                        <option value="">Select your region</option>
+                                        {uniqueRegions.map(reg => (
+                                            <option key={reg} value={reg}>{reg}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Dependent Service Center Selection */}
+                                <div className="flex flex-col">
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Service Center</label>
+                                    <select
+                                        {...register("senderWarehouse")}
+                                        disabled={!selectedSenderRegion}
+                                        className="w-full p-2 border border-slate-300 rounded text-slate-700 focus:outline-[#9ACD32] disabled:bg-slate-50"
+                                    >
+                                        <option value="">{selectedSenderRegion ? "Select Center" : "First select region"}</option>
+                                        {senderCenters.map(center => (
+                                            <option key={center.district} value={center.district}>
+                                                {center.district}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+
+
+                            </div>
+
+
+                            <div className='flex flex-col'>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Sender Warehouse</label>
+                                <input {...register("senderAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
+
+                            </div>
+
+                            <div className='flex flex-col'>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Pickup Instruction</label>
+                                <textarea {...register("pickupInstruction")} placeholder="Pickup Instruction" className="w-full p-2 border border-slate-300 rounded h-24 focus:outline-[#9ACD32]" />
+                            </div>
+                        </div>
+
+                        {/* Receiver Details */}
+                        <div className="space-y-4">
+                            <h3 className="font-bold text-[#002B2B] border-b pb-2">Receiver Details</h3>
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Name</label>
+                                    <input {...register("receiverName")} placeholder="Receiver Name" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
+                                </div>
+
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Contact No</label>
+                                    <input {...register("receiverContact")} placeholder="Receiver Contact No" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
+                                </div>
+
+                            </div>
+
+
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Region</label>
+                                    <select {...register("receiverRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]">
+                                        <option value="">Select your region</option>
+                                        {uniqueRegions.map(reg => (
+                                            <option key={reg} value={reg}>{reg}</option>
+                                        ))}
+                                    </select>
+
+                                </div>
+
+                                {/* Receiver Service Center */}
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Service Center</label>
+                                    <select
+                                        {...register("receiverWarehouse")}
+                                        disabled={!selectedReceiverRegion}
+                                        className="w-full p-2 border border-slate-300 rounded text-slate-700 focus:outline-[#9ACD32] disabled:bg-slate-50"
+                                    >
+                                        <option value="">{selectedReceiverRegion ? "Select Center" : "First select region"}</option>
+                                        {receiverCenters.map(center => (
+                                            <option key={center.district} value={center.district}>
+                                                {center.district}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+
+                            <div className='flex flex-col'>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Address</label>
+                                <input {...register("receiverAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
+                            </div>
+
+                            <div className='flex flex-col'>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Delivery Instruction</label>
+                                <textarea {...register("deliveryInstruction")} placeholder="Delivery Instruction" className="w-full p-2 border border-slate-300 rounded h-24 focus:outline-[#9ACD32]" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Bottom Info & Submit */}
+               
+
+                    <div className="flex justify-between items-center bg-slate-50 p-4 rounded-lg">
+                        <div>
+                            <p className="text-sm font-semibold text-[#002B2B]">
+                                ➤ PickUp Time 4pm-7pm Approx.
+                            </p>
+                            <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Estimated Cost</p>
+                            <h2 className="text-2xl font-black text-[#9ACD32]">৳{calculateCost(watch())}</h2>
+                        </div>
+                        <button type="submit" className="bg-[#9ACD32] text-[#002B2B] px-10 py-3 rounded font-bold shadow-lg hover:bg-[#88bc28]">
+                            Confirm Booking
+                        </button>
+                    </div>
                 
 
-                {/* Sender & Receiver Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mt-5">
-
-                    {/* Sender Details */}
-                    <div className="space-y-4">
-                        <h3 className="font-bold text-[#002B2B] border-b pb-2">Sender Details</h3>
-
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'> {/* Parent container for the row */}
-
-                            {/* Sender Name Group */}
-                            <div className="flex flex-col">
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Sender Name</label>
-                                <input
-                                    {...register("senderName")}
-                                    placeholder="Sender Name"
-                                    className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]"
-                                />
-                            </div>
-
-                            <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Sender Contact No</label>
-                                <input {...register("senderContact")} placeholder="Sender Contact No" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-                            </div>
-
-                        </div>
-
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-
-                            <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Sender Region</label>
-                                <select {...register("senderRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]">
-                                    <option value="">Select your region</option>
-                                    {uniqueRegions.map(reg => (
-                                        <option key={reg} value={reg}>{reg}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Dependent Service Center Selection */}
-                            <div className="flex flex-col">
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Sender Service Center</label>
-                                <select
-                                    {...register("senderWarehouse")}
-                                    disabled={!selectedSenderRegion}
-                                    className="w-full p-2 border border-slate-300 rounded text-slate-700 focus:outline-[#9ACD32] disabled:bg-slate-50"
-                                >
-                                    <option value="">{selectedSenderRegion ? "Select Center" : "First select region"}</option>
-                                    {senderCenters.map(center => (
-                                        <option key={center.district} value={center.district}>
-                                            {center.district}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-
-
-                        </div>
-
-
-                        <div className='flex flex-col'>
-                            <label className="block text-xs font-bold text-slate-500 mb-1">Sender Warehouse</label>
-                            <input {...register("senderAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-
-                        </div>
-
-                        <div className='flex flex-col'>
-                            <label className="block text-xs font-bold text-slate-500 mb-1">Pickup Instruction</label>
-                            <textarea {...register("pickupInstruction")} placeholder="Pickup Instruction" className="w-full p-2 border border-slate-300 rounded h-24 focus:outline-[#9ACD32]" />
-                        </div>
-                    </div>
-
-                    {/* Receiver Details */}
-                    <div className="space-y-4">
-                        <h3 className="font-bold text-[#002B2B] border-b pb-2">Receiver Details</h3>
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                            <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Name</label>
-                                <input {...register("receiverName")} placeholder="Receiver Name" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-                            </div>
-
-                            <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Contact No</label>
-                                <input {...register("receiverContact")} placeholder="Receiver Contact No" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-                            </div>
-
-                        </div>
-
-
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-
-                            <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Region</label>
-                                <select {...register("receiverRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]">
-                                    <option value="">Select your region</option>
-                                    {uniqueRegions.map(reg => (
-                                        <option key={reg} value={reg}>{reg}</option>
-                                    ))}
-                                </select>
-
-                            </div>
-
-                            {/* Receiver Service Center */}
-                            <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Service Center</label>
-                                <select
-                                    {...register("receiverWarehouse")}
-                                    disabled={!selectedReceiverRegion}
-                                    className="w-full p-2 border border-slate-300 rounded text-slate-700 focus:outline-[#9ACD32] disabled:bg-slate-50"
-                                >
-                                    <option value="">{selectedReceiverRegion ? "Select Center" : "First select region"}</option>
-                                    {receiverCenters.map(center => (
-                                        <option key={center.district} value={center.district}>
-                                            {center.district}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-
-                        <div className='flex flex-col'>
-                            <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Address</label>
-                            <input {...register("receiverAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-                        </div>
-
-                        <div className='flex flex-col'>
-                            <label className="block text-xs font-bold text-slate-500 mb-1">Delivery Instruction</label>
-                            <textarea {...register("deliveryInstruction")} placeholder="Delivery Instruction" className="w-full p-2 border border-slate-300 rounded h-24 focus:outline-[#9ACD32]" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Bottom Info & Submit */}
-            <div className="flex flex-col gap-4">
-                <p className="text-sm font-semibold text-[#002B2B]">
-                    ➤ PickUp Time 4pm-7pm Approx.
-                </p>
-                <button
-                    type="submit"
-                    className="w-fit px-8 py-3 bg-trust-lime text-[#002B2B] font-bold rounded shadow-md hover:bg-[#c2e05a] transition-colors"
-                >
-                    Proceed to Confirm Booking
-                </button>
-            </div>
-
-        </form>
+            </form>
         </div >
     );
 };
