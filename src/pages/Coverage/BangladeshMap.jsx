@@ -6,6 +6,7 @@ import L from 'leaflet';
 // Fix for default marker icons
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import Swal from 'sweetalert2';
 
 let DefaultIcon = L.icon({
   iconUrl: markerIcon,
@@ -58,7 +59,11 @@ const BangladeshMap = () => {
     if (found) {
       setZoomPos([found.latitude, found.longitude]);
     } else {
-      alert("District not found! Please check the spelling.");
+      Swal.fire({
+        icon: 'error',
+        title: 'District Not Found',
+        text: `No service center found for "${searchQuery}". Please try another district.`,
+      });
     }
   };
 

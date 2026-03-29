@@ -2,16 +2,29 @@ import React from "react";
 import { Link, NavLink } from "react-router";
 import ProFastLogo from "./ProFastLogo";
 import { MdOutlineArrowOutward } from "react-icons/md";
+import useAuth from "../../hooks/useAuth";
 
 const Navbar = () => {
   const activeLink = "font-bold bg-trust-lime  border-b-2 border-trust-lime";
   const normalLink = "text-trust-dark  transition-colors";
+  const {user, logOut} = useAuth();
+
+   const handleLogout = () => {
+        logOut()
+            .then(() => {
+                // Successfully logged out
+            })
+            .catch((error) => {
+                console.error("Logout Error:", error);
+            });
+    };
 
 
   const navItems = <>
     <li><NavLink to="/" end className={({ isActive }) => isActive ? activeLink : normalLink}>Home</NavLink></li>
     <li><NavLink to="/services" className={({ isActive }) => isActive ? activeLink : normalLink}>Services</NavLink></li>
     <li><NavLink to="/coverage" className={({ isActive }) => isActive ? activeLink : normalLink}>Coverage</NavLink></li>
+    <li><NavLink to="/sendParcel" className={({ isActive }) => isActive ? activeLink : normalLink}>Send Parcel</NavLink></li>
     <li><NavLink to="/about" className={({ isActive }) => isActive ? activeLink : normalLink}>About Us</NavLink></li>
     <li><NavLink to="/pricing" className={({ isActive }) => isActive ? activeLink : normalLink}>Pricing</NavLink></li>
     <li><NavLink to="/rider" className={({ isActive }) => isActive ? activeLink : normalLink}>Be a Rider</NavLink></li>
@@ -55,14 +68,25 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="navbar-end">
-        <Link to="/login">
-          <button className="btn btn-ghost">Sign In</button>
-        </Link>
-        <Link to="/register">
-          <button className="btn border-none btn-primary bg-trust-lime text-black ml-2">Sign Up
-            <span className="text-2xl"><MdOutlineArrowOutward /></span>
-          </button>
-        </Link>
+        {user ? (
+          <>
+            <span className="mr-4 font-semibold text-trust-dark">{user.displayName}</span>
+            <button onClick={handleLogout} className="btn border-none btn-primary bg-trust-lime text-black ml-2">Sign Out
+              <span className="text-2xl"><MdOutlineArrowOutward /></span>
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">
+              <button className="btn btn-ghost">Sign In</button>
+            </Link>
+            <Link to="/register">
+              <button className="btn border-none btn-primary bg-trust-lime text-black ml-2">Sign Up
+                <span className="text-2xl"><MdOutlineArrowOutward /></span>
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
