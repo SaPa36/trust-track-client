@@ -79,39 +79,44 @@ const SendParcel = () => {
                                     />
                                 </div>
 
-                                {/* Sender Warehouse Group */}
-                                <div className="flex flex-col">
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Warehouse</label>
-                                    <select
-                                        {...register("senderWarehouse")}
-                                        className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]"
-                                    >
-                                        <option value="">Select Wire house</option>
-                                        <option value="dhaka_main">Dhaka Main</option>
-                                    </select>
-                                </div>
-
-                            </div>
-
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                <div className='flex flex-col'>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Warehouse</label>
-                                    <input {...register("senderAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-
-                                </div>
-
                                 <div className='flex flex-col'>
                                     <label className="block text-xs font-bold text-slate-500 mb-1">Sender Contact No</label>
                                     <input {...register("senderContact")} placeholder="Sender Contact No" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
                                 </div>
 
                             </div>
+
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Region</label>
+                                    <select {...register("senderRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
+                                        <option value="">Select your region</option>
+                                        <option value="dhaka">Dhaka</option>
+                                    </select>
+                                </div>
+
+                                {/* Sender Warehouse Group */}
+                                <div className="flex flex-col">
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Sender Service Center</label>
+                                    <select
+                                        {...register("senderWarehouse")}
+                                        className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]"
+                                    >
+                                        <option value="">Select Service Center</option>
+                                        <option value="dhaka_main">Dhaka Main</option>
+                                    </select>
+                                </div>
+
+
+
+                            </div>
+
+
                             <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Sender Region</label>
-                                <select {...register("senderRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
-                                    <option value="">Select your region</option>
-                                    <option value="dhaka">Dhaka</option>
-                                </select>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Sender Warehouse</label>
+                                <input {...register("senderAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
+
                             </div>
 
                             <div className='flex flex-col'>
@@ -128,33 +133,39 @@ const SendParcel = () => {
                                     <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Name</label>
                                     <input {...register("receiverName")} placeholder="Receiver Name" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
                                 </div>
+
                                 <div className='flex flex-col'>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Warehouse</label>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Contact No</label>
+                                    <input {...register("receiverContact")} placeholder="Receiver Contact No" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
+                                </div>
+
+                            </div>
+
+
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Region</label>
+                                    <select {...register("receiverRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
+                                        <option value="">Select your region</option>
+                                        <option value="chattogram">Chattogram</option>
+                                    </select>
+
+                                </div>
+
+                                <div className='flex flex-col'>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Service Center</label>
                                     <select {...register("receiverWarehouse")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
-                                        <option value="">Select Warehouse</option>
+                                        <option value="">Select Service Center</option>
                                         <option value="chattogram_main">Chattogram Main</option>
                                     </select>
                                 </div>
                             </div>
 
 
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                <div className='flex flex-col'>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Address</label>
-                                    <input {...register("receiverAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-                                </div>
-                                <div className='flex flex-col'>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Contact No</label>
-                                    <input {...register("receiverContact")} placeholder="Receiver Contact No" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
-                                </div>
-                            </div>
-
                             <div className='flex flex-col'>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Region</label>
-                                <select {...register("receiverRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
-                                    <option value="">Select your region</option>
-                                    <option value="chattogram">Chattogram</option>
-                                </select>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Address</label>
+                                <input {...register("receiverAddress")} placeholder="Address" className="w-full p-2 border border-slate-300 rounded focus:outline-[#9ACD32]" />
                             </div>
 
                             <div className='flex flex-col'>
@@ -172,7 +183,7 @@ const SendParcel = () => {
                     </p>
                     <button
                         type="submit"
-                        className="w-fit px-8 py-3 bg-[#D4F06D] text-[#002B2B] font-bold rounded shadow-md hover:bg-[#c2e05a] transition-colors"
+                        className="w-fit px-8 py-3 bg-trust-lime text-[#002B2B] font-bold rounded shadow-md hover:bg-[#c2e05a] transition-colors"
                     >
                         Proceed to Confirm Booking
                     </button>
