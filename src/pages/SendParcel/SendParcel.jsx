@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
+import useAuth from '../../hooks/useAuth';
+import axios from 'axios';
+
+
+
+const generateTrackingID = () => {
+    const date = new Date();
+    const datePart = date.toISOString().split("T")[0].replace(/-/g, "");
+    const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
+    return `PCL-${datePart}-${rand}`;
+};
+// Result: PCL-20231015-ABC12
 
 const SendParcel = () => {
     const [allData, setAllData] = useState([]);
@@ -17,6 +29,8 @@ const SendParcel = () => {
             parcelType: 'Document', // Default radio selection
         }
     });
+
+    const {user} = useAuth();
 
     // 1. Watch the parcel type
     const selectedParcelType = watch("parcelType");
@@ -74,6 +88,20 @@ const SendParcel = () => {
     const onSubmit = (data) => {
         const finalCost = calculateCost(data);
 
+        // Prepare the final object for the database
+        const parcelInfo = {
+            ...data,
+            senderEmail: user?.email, // Who created the parcel
+            senderName: user?.displayName || data.senderName,
+            cost: finalCost,
+            payment_status: 'pending', // Initial status
+            delivery_status: 'not_delivered', // Initial status
+            createdAt: new Date().toISOString(), // Timestamp
+            bookingId: generateTrackingID() // Random Tracking ID
+        };
+
+        console.log("Parcel Info to Save:", parcelInfo);
+
         Swal.fire({
             title: 'Confirm Booking',
             html: `
@@ -86,15 +114,28 @@ const SendParcel = () => {
                 </div>
             `,
             icon: 'info',
-            showCancelButton: true,
-            confirmButtonColor: '#9ACD32',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, Place Order'
-        }).then((result) => {
+            showDenyButton: true,
+            confirmButtonText: "💳 Proceed to Payment",
+            denyButtonText: "✏️ Continue Editing",
+            confirmButtonColor: "#16a34a",
+            denyButtonColor: "#d3d3d3",
+            customClass: {
+                popup: "rounded-xl shadow-md px-6 py-6",
+            },
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                // Here you would typically perform your database push (Firebase/MongoDB)
-                Swal.fire('Success!', 'Your parcel order has been placed.', 'success');
-                console.log("Final Data to DB:", { ...data, cost: finalCost });
+                try {
+                    // REPLACE URL with your actual backend endpoint
+                    const response = await axios.post('http://localhost:5000/parcels', parcelInfo);
+                    
+                    if (response.data.insertedId) {
+                        Swal.fire('Success!', 'Parcel booked successfully!', 'success');
+                        // reset(); // Clear form after success
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'Failed to save parcel. Try again.', 'error');
+                    console.error(error);
+                }
             }
         });
     };
