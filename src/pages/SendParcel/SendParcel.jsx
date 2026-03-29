@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 
 
 
@@ -31,6 +32,7 @@ const SendParcel = () => {
     });
 
     const {user} = useAuth();
+    const axiosSecure = useAxiosSecure();
 
     // 1. Watch the parcel type
     const selectedParcelType = watch("parcelType");
@@ -126,7 +128,7 @@ const SendParcel = () => {
             if (result.isConfirmed) {
                 try {
                     // REPLACE URL with your actual backend endpoint
-                    const response = await axios.post('http://localhost:5000/parcels', parcelInfo);
+                    const response = await axiosSecure.post('/parcels', parcelInfo);
                     
                     if (response.data.insertedId) {
                         Swal.fire('Success!', 'Parcel booked successfully!', 'success');
