@@ -16,13 +16,14 @@ const AuthLayout = () => {
         <div className="flex-1 p-2 ">
           <ProFastLogo />
           
+        {/* add a comment for the push code on github */}
           <div className='pl-4 md:pl-10'>
             <Outlet></Outlet>
           </div>
         </div>
 
         {/* Right Side: Illustration */}
-        <div className="flex-1 bg-[#F7FAF0] hidden md:flex items-center justify-center p-10">
+        <div className="flex-1  hidden md:flex items-center justify-center p-10">
            <img 
              src={authImg}
              alt="Delivery Illustration" 
