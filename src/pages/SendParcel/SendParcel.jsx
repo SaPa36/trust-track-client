@@ -1,16 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 const SendParcel = () => {
+    const [allData, setAllData] = useState([]);
+    const [uniqueRegions, setUniqueRegions] = useState([]);
+
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm({
         defaultValues: {
             parcelType: 'Document', // Default radio selection
         }
     });
+
+    // 1. Fetch JSON data on mount
+    useEffect(() => {
+        fetch('/serviceCenter.json')
+            .then(res => res.json())
+            .then(data => {
+                setAllData(data);
+                // Extract unique regions for the dropdown
+                const regions = [...new Set(data.map(item => item.region))];
+                setUniqueRegions(regions);
+            });
+    }, []);
+
+    // 2. Watch the selected regions
+    const selectedSenderRegion = watch("senderRegion");
+    const selectedReceiverRegion = watch("receiverRegion");
+
+    // 3. Filter Service Centers based on selection
+    const senderCenters = allData.filter(item => item.region === selectedSenderRegion);
+    const receiverCenters = allData.filter(item => item.region === selectedReceiverRegion);
 
     const onSubmit = (data) => {
         console.log("Parcel Data:", data);
@@ -90,21 +114,28 @@ const SendParcel = () => {
 
                                 <div className='flex flex-col'>
                                     <label className="block text-xs font-bold text-slate-500 mb-1">Sender Region</label>
-                                    <select {...register("senderRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
+                                    <select {...register("senderRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]">
                                         <option value="">Select your region</option>
-                                        <option value="dhaka">Dhaka</option>
+                                        {uniqueRegions.map(reg => (
+                                            <option key={reg} value={reg}>{reg}</option>
+                                        ))}
                                     </select>
                                 </div>
 
-                                {/* Sender Warehouse Group */}
+                                {/* Dependent Service Center Selection */}
                                 <div className="flex flex-col">
                                     <label className="block text-xs font-bold text-slate-500 mb-1">Sender Service Center</label>
                                     <select
                                         {...register("senderWarehouse")}
-                                        className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]"
+                                        disabled={!selectedSenderRegion}
+                                        className="w-full p-2 border border-slate-300 rounded text-slate-700 focus:outline-[#9ACD32] disabled:bg-slate-50"
                                     >
-                                        <option value="">Select Service Center</option>
-                                        <option value="dhaka_main">Dhaka Main</option>
+                                        <option value="">{selectedSenderRegion ? "Select Center" : "First select region"}</option>
+                                        {senderCenters.map(center => (
+                                            <option key={center.district} value={center.district}>
+                                                {center.district}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -146,18 +177,29 @@ const SendParcel = () => {
 
                                 <div className='flex flex-col'>
                                     <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Region</label>
-                                    <select {...register("receiverRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
+                                    <select {...register("receiverRegion")} className="w-full p-2 border border-slate-300 rounded text-slate-400 focus:outline-[#9ACD32]">
                                         <option value="">Select your region</option>
-                                        <option value="chattogram">Chattogram</option>
+                                        {uniqueRegions.map(reg => (
+                                            <option key={reg} value={reg}>{reg}</option>
+                                        ))}
                                     </select>
 
                                 </div>
 
+                                {/* Receiver Service Center */}
                                 <div className='flex flex-col'>
                                     <label className="block text-xs font-bold text-slate-500 mb-1">Receiver Service Center</label>
-                                    <select {...register("receiverWarehouse")} className="w-full p-2 border border-slate-300 rounded text-slate-400">
-                                        <option value="">Select Service Center</option>
-                                        <option value="chattogram_main">Chattogram Main</option>
+                                    <select 
+                                        {...register("receiverWarehouse")} 
+                                        disabled={!selectedReceiverRegion}
+                                        className="w-full p-2 border border-slate-300 rounded text-slate-700 focus:outline-[#9ACD32] disabled:bg-slate-50"
+                                    >
+                                        <option value="">{selectedReceiverRegion ? "Select Center" : "First select region"}</option>
+                                        {receiverCenters.map(center => (
+                                            <option key={center.district} value={center.district}>
+                                                {center.district}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
