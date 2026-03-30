@@ -119,22 +119,20 @@ const MyParcel = () => {
 
                                     {/* PAYMENT STATUS */}
                                     <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                                            parcel.payment_status === 'paid' 
-                                            ? 'bg-green-100 text-green-700' 
-                                            : 'bg-amber-100 text-amber-700'
-                                        }`}>
+                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${parcel.payment_status === 'paid'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-amber-100 text-amber-700'
+                                            }`}>
                                             {parcel.payment_status || 'pending'}
                                         </span>
                                     </td>
 
                                     {/* DELIVERY STATUS */}
                                     <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                                            parcel.delivery_status === 'delivered' 
-                                            ? 'bg-emerald-100 text-emerald-700' 
-                                            : 'bg-slate-100 text-slate-500'
-                                        }`}>
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${parcel.delivery_status === 'delivered'
+                                                ? 'bg-emerald-100 text-emerald-700'
+                                                : 'bg-slate-100 text-slate-500'
+                                            }`}>
                                             {parcel.delivery_status?.replace('_', ' ')}
                                         </span>
                                     </td>
@@ -142,25 +140,18 @@ const MyParcel = () => {
                                     {/* ACTIONS */}
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-center gap-2">
-                                            <Link 
+                                            <Link
                                                 to={`/dashboard/updateParcel/${parcel._id}`}
-                                                className={`p-2 rounded-lg transition-all ${
-                                                    parcel.delivery_status !== 'pending' 
-                                                    ? 'text-slate-300 cursor-not-allowed' 
-                                                    : 'text-blue-500 hover:bg-blue-50'
-                                                }`}
+                                                // Removed the status check logic here
+                                                className="p-2 rounded-lg transition-all text-blue-500 hover:bg-blue-50"
                                                 title="Edit Booking"
                                             >
                                                 <Edit3 size={18} />
                                             </Link>
-                                            <button 
+                                            <button
                                                 onClick={() => handleCancel(parcel._id, parcel.delivery_status)}
-                                                disabled={parcel.delivery_status !== 'pending'}
-                                                className={`p-2 rounded-lg transition-all ${
-                                                    parcel.delivery_status !== 'pending' 
-                                                    ? 'text-slate-300 cursor-not-allowed' 
-                                                    : 'text-red-500 hover:bg-red-50'
-                                                }`}
+                                                // Removed disabled={...} and the grey-out logic
+                                                className="p-2 rounded-lg transition-all text-red-500 hover:bg-red-50"
                                                 title="Cancel Booking"
                                             >
                                                 <Trash2 size={18} />
