@@ -4,12 +4,12 @@ import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import { Edit3, Trash2, AlertCircle, Calendar, Package, ReceiptText } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const MyParcel = () => {
     const { user } = useAuth();
     const axiosSecure = useAxiosSecure();
-
+    const navigate = useNavigate();
     // TanStack Query Logic
     const { data: parcels = [], isLoading, error, refetch } = useQuery({
         queryKey: ['parcels', user?.email],
@@ -50,6 +50,10 @@ const MyParcel = () => {
                 }
             }
         });
+    };
+
+    const handlePay = (id) => {
+        navigate(`/dashboard/payment/${id}`);
     };
 
     if (isLoading) return <div className="p-10 text-center font-bold text-[#002B2B] animate-pulse">Loading your dashboard...</div>;
@@ -151,6 +155,15 @@ const MyParcel = () => {
                                             >
                                                 <Edit3 size={18} />
                                             </Link>
+
+                                            <button
+                                                onClick={() => handlePay(parcel._id)}
+                                                className="p-2 px-4 rounded-lg bg-trust-lime transition-all text-[#002B2B] hover:bg-[#cde360]"
+                                                title="Make Payment"
+                                            >
+                                                Pay
+                                            </button>
+
                                             <button
                                                 onClick={() => handleDelete(parcel._id, parcel.delivery_status)}
                                                 title="Delete Parcel"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import useAuth from '../../../hooks/useAuth';
 import Swal from 'sweetalert2';
 import SocialLogin from '../SocialLogin/SocialLogin';
@@ -10,6 +10,8 @@ const Login = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const {signIn} = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/';
 
   const onSubmit = (data) => {
       signIn(data.email, data.password)
@@ -23,7 +25,7 @@ const Login = () => {
                 showConfirmButton: false,
               });
               reset();
-                navigate('/');
+                navigate(from, { replace: true });
         })
         .catch(error => console.log(error));
 

@@ -1,12 +1,14 @@
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../../hooks/useAuth";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import Swal from "sweetalert2";
 
 
 const SocialLogin = () => {
     const {signInWithGoogle} = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/';
 
     const handleGoogleSignIn = () => {
         signInWithGoogle()
@@ -19,7 +21,7 @@ const SocialLogin = () => {
                     timer: 1500,
                     showConfirmButton: false,
                   });
-            navigate('/');
+            navigate(from, { replace: true });
         })
         .catch(error => console.log(error));
     };
