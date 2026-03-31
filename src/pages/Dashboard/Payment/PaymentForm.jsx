@@ -1,10 +1,12 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import React, { useState } from 'react';
 import { CreditCard, Lock } from 'lucide-react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import useAuth from '../../../hooks/useAuth';
+import { set } from 'react-hook-form';
+import Swal from 'sweetalert2';
 
 const PaymentForm = () => {
     const stripe = useStripe();
@@ -13,6 +15,7 @@ const PaymentForm = () => {
     const {parcelId} = useParams();
     const axiosSecure = useAxiosSecure();
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     const {data: parcelInfo, isLoading} = useQuery({
         queryKey: ['parcel', parcelId],
@@ -85,10 +88,45 @@ const PaymentForm = () => {
                 console.log('[Payment Confirmation Error]', result.error);
                 setError(result.error.message);
             } else {
+                setError(null);
                 if (result.paymentIntent.status === 'succeeded') {
                     // Payment succeeded, you can update your backend or show a success message
                     console.log('Payment successful!');
                     console.log(result);
+
+                    //Mark parcel as paid in the database payment history
+                    const transactionId = result.paymentIntent.id;
+                    // step-4 mark parcel paid also create payment history
+                    const paymentData = {
+                        parcelId,
+                        email: user.email,
+                        amount,
+                        transactionId: transactionId,
+                        paymentMethod: result.paymentIntent.payment_method_types
+                    }
+
+                    const paymentRes = await axiosSecure.post('/payments', paymentData);
+                    if (paymentRes.data.insertedId) {
+
+                        // ✅ Show SweetAlert with transaction ID
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Payment Successful!',
+                            html: `<strong>Transaction ID:</strong> <code>${transactionId}</code>`,
+                            confirmButtonText: 'Go to My Parcels',
+                        });
+
+                        // ✅ Redirect to /myParcels
+                        navigate('/dashboard/myParcels');
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Recorded Failed',
+                            text: 'There was an issue recording your payment. Please contact support.',
+                        });
+                    }
+                    
+
                 }
     };
 
