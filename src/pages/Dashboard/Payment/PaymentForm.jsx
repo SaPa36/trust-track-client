@@ -4,6 +4,7 @@ import { CreditCard, Lock } from 'lucide-react';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import useAuth from '../../../hooks/useAuth';
 
 const PaymentForm = () => {
     const stripe = useStripe();
@@ -11,6 +12,7 @@ const PaymentForm = () => {
     const [error, setError] = useState(null);
     const {parcelId} = useParams();
     const axiosSecure = useAxiosSecure();
+    const { user } = useAuth();
 
     const {data: parcelInfo, isLoading} = useQuery({
         queryKey: ['parcel', parcelId],
@@ -30,6 +32,7 @@ const PaymentForm = () => {
     }
 
     const amount = parcelInfo.cost;
+    const amountInCents = amount * 100;
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -56,8 +59,40 @@ const PaymentForm = () => {
         } else {
             console.log('[PaymentMethod]', paymentMethod);
             setError(null);
+
         }
+
+        
+            const res = await axiosSecure.post('/create-payment-intent', {
+                amountInCents,
+                parcelId
+            });
+
+            const clientSecret = res.data.clientSecret;
+
+            // step-3: confirm payment
+            const result = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: elements.getElement(CardElement),
+                    billing_details: {
+                        name: user.displayName,
+                        email: user.email
+                    },
+                },
+            });
+
+            if (result.error) {
+                console.log('[Payment Confirmation Error]', result.error);
+                setError(result.error.message);
+            } else {
+                if (result.paymentIntent.status === 'succeeded') {
+                    // Payment succeeded, you can update your backend or show a success message
+                    console.log('Payment successful!');
+                    console.log(result);
+                }
     };
+
+}
 
     return (
         <div className="max-w-md mx-auto mt-5  bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">

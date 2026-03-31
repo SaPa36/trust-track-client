@@ -5,7 +5,7 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const Payment = () => {
 
-    const stripePromise = loadStripe('pk_test_6pRNASCoBOKtIshFeQd4XMUh');
+    const stripePromise = loadStripe(import.meta.env.VITE_PAYMENT_GATEWAY_KEY);
     return (
         <Elements stripe={stripePromise}>
             <PaymentForm />
