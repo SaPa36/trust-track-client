@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {  NavLink, Outlet } from 'react-router-dom';
-import { Menu, X, LayoutDashboard, PackagePlus, ListOrdered, User, LogOut } from 'lucide-react';
+import { Menu, X, LayoutDashboard, PackagePlus, ListOrdered, User, LogOut, CreditCard } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import ProFastLogo from '../pages/shared/ProFastLogo';
 
@@ -14,6 +14,7 @@ const DashboardLayout = () => {
         { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
         { label: 'Add Parcel', path: '/dashboard/addParcel', icon: <PackagePlus size={20} /> },
         { label: 'My Parcels', path: '/dashboard/myParcels', icon: <ListOrdered size={20} /> },
+        { label: 'Payment History', path: '/dashboard/paymentHistory', icon: <CreditCard size={20} /> },
         { label: 'Profile', path: '/dashboard/profile', icon: <User size={20} /> },
     ];
 

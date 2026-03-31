@@ -158,8 +158,14 @@ const MyParcel = () => {
 
                                             <button
                                                 onClick={() => handlePay(parcel._id)}
-                                                className="p-2 px-4 rounded-lg bg-trust-lime transition-all text-[#002B2B] hover:bg-[#cde360]"
+                                                className={`p-2 px-4 rounded-lg font-bold transition-all text-[#002B2B] 
+                                                        ${(parcel.payment_status === 'paid' || parcel.delivery_status === 'delivered')
+                                                        ? 'bg-gray-300 cursor-not-allowed opacity-60'
+                                                        : 'bg-trust-lime hover:bg-[#cde360] active:scale-95'
+                                                    }`}
                                                 title="Make Payment"
+                                                disabled={parcel.payment_status === 'paid'}
+
                                             >
                                                 Pay
                                             </button>
