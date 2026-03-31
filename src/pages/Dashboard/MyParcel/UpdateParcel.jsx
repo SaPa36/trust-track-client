@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
-import useAuth from '../../hooks/useAuth';
-import useAxiosSecure from '../../hooks/useAxiosSecure';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 
-
-const generateTrackingID = () => {
-    const date = new Date();
-    const datePart = date.toISOString().split("T")[0].replace(/-/g, "");
-    const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
-    return `PCL-${datePart}-${rand}`;
-};
-// Result: PCL-20231015-ABC12
-
-const SendParcel = () => {
+const UpdateParcel = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const axiosSecure = useAxiosSecure();
     const [allData, setAllData] = useState([]);
     const [uniqueRegions, setUniqueRegions] = useState([]);
 
@@ -23,127 +18,84 @@ const SendParcel = () => {
         handleSubmit,
         watch,
         setValue,
+        reset,
         formState: { errors },
-    } = useForm({
-        defaultValues: {
-            parcelType: 'Document', // Default radio selection
+    } = useForm();
+
+    // 1. Fetch the specific parcel data
+    const { data: parcel, isLoading } = useQuery({
+        queryKey: ['parcel', id],
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/parcels/${id}`);
+            return res.data;
+        },
+        onSuccess: (data) => {
+            reset(data); // This automatically fills the form fields with DB values
         }
     });
 
-    const {user} = useAuth();
-    const axiosSecure = useAxiosSecure();
-
-    // 1. Watch the parcel type
-    const selectedParcelType = watch("parcelType");
-    const weight = watch("weight") || 0;
-    // 2. Watch the selected regions
-    const selectedSenderRegion = watch("senderRegion");
-    const selectedReceiverRegion = watch("receiverRegion");
-
-    // 1. Fetch JSON data on mount
+    // 2. Fetch service center JSON (Same as SendParcel)
     useEffect(() => {
         fetch('/serviceCenter.json')
             .then(res => res.json())
             .then(data => {
                 setAllData(data);
-                // Extract unique regions for the dropdown
                 const regions = [...new Set(data.map(item => item.region))];
                 setUniqueRegions(regions);
             });
     }, []);
 
-    // 2. Logic to clear weight if user switches back to "Document"
+    // 3. Effect to reset form once parcel data is loaded
     useEffect(() => {
-        if (selectedParcelType === 'Document') {
-            setValue("weight", "");
+        if (parcel) {
+            reset(parcel);
         }
-    }, [selectedParcelType, setValue]);
+    }, [parcel, reset]);
 
-    // Helper to calculate cost
+    const selectedParcelType = watch("parcelType");
+    const weight = watch("weight") || 0;
+    const selectedSenderRegion = watch("senderRegion");
+    const selectedReceiverRegion = watch("receiverRegion");
+
     const calculateCost = (data) => {
         const isWithinCity = data.senderRegion === data.receiverRegion;
         let total = 0;
-
         if (data.parcelType === 'Document') {
             total = isWithinCity ? 60 : 80;
         } else {
-            // Non-Document logic
-            if (weight <= 3) {
-                total = isWithinCity ? 110 : 150;
-            } else {
-                // Base (up to 3kg) + 40 for every extra kg
-                const basePrice = isWithinCity ? 110 : 150;
-                const extraWeight = weight - 3;
-                total = basePrice + (extraWeight * 40);
-            }
+            const basePrice = isWithinCity ? 110 : 150;
+            total = weight <= 3 ? basePrice : basePrice + ((weight - 3) * 40);
         }
         return total;
     };
 
-
-    const isWithinCity = (data) => data.senderRegion === data.receiverRegion;
-    // 3. Filter Service Centers based on selection
     const senderCenters = allData.filter(item => item.region === selectedSenderRegion);
     const receiverCenters = allData.filter(item => item.region === selectedReceiverRegion);
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         const finalCost = calculateCost(data);
+        const updatedDoc = { ...data, cost: finalCost };
 
-        // Prepare the final object for the database
-        const parcelInfo = {
-            ...data,
-            senderEmail: user?.email, // Who created the parcel
-            senderName: user?.displayName || data.senderName,
-            cost: finalCost,
-            payment_status: 'pending', // Initial status
-            delivery_status: 'not_delivered', // Initial status
-            createdAt: new Date().toISOString(), // Timestamp
-            bookingId: generateTrackingID() // Random Tracking ID
-        };
+        try {
+            // CHANGED TO PATCH
+            const res = await axiosSecure.patch(`/parcels/${id}`, updatedDoc);
 
-        console.log("Parcel Info to Save:", parcelInfo);
-
-        Swal.fire({
-            title: 'Confirm Booking',
-            html: `
-                <div style="text-align: left;">
-                    <p><b>Parcel:</b> ${data.parcelName}</p>
-                    <p><b>Type:</b> ${data.parcelType}</p>
-                    <p><b>Destination:</b> ${isWithinCity(data) ? 'Within City' : 'Outside City'}</p>
-                    <hr>
-                    <h3 style="color: #9ACD32; text-align: center;">Total Cost: ৳${finalCost}</h3>
-                </div>
-            `,
-            icon: 'info',
-            showDenyButton: true,
-            confirmButtonText: "💳 Proceed to Payment",
-            denyButtonText: "✏️ Continue Editing",
-            confirmButtonColor: "#16a34a",
-            denyButtonColor: "#d3d3d3",
-            customClass: {
-                popup: "rounded-xl shadow-md px-6 py-6",
-            },
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    // REPLACE URL with your actual backend endpoint
-                    const response = await axiosSecure.post('/parcels', parcelInfo);
-                    
-                    if (response.data.insertedId) {
-                        Swal.fire('Success!', 'Parcel booked successfully!', 'success');
-                        // reset(); // Clear form after success
-                    }
-                } catch (error) {
-                    Swal.fire('Error', 'Failed to save parcel. Try again.', 'error');
-                    console.error(error);
-                }
+            if (res.data.modifiedCount > 0) {
+                Swal.fire("Success", "Parcel updated!", "success");
+                navigate('/dashboard/myParcels');
+            } else {
+                Swal.fire("No changes", "You didn't modify anything", "info");
             }
-        });
+        } catch (err) {
+            Swal.fire("Error", "Update failed", "error");
+        }
     };
 
+    if (isLoading) return <div className="p-20 text-center font-bold">Loading Parcel Data...</div>;
+
     return (
-        <div className="max-w-5xl mx-auto  bg-white shadow-sm rounded-lg border border-slate-100 ">
-            <h1 className="text-3xl text-center font-bold text-[#002B2B] mb-6">Add Parcel</h1>
+        <div className="max-w-5xl mx-auto bg-white shadow-sm rounded-lg border border-slate-100">
+            <h1 className="text-3xl text-center font-bold text-[#002B2B] mb-6 mt-4">Update Parcel</h1>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
 
@@ -331,25 +283,25 @@ const SendParcel = () => {
                 </section>
 
                 {/* Bottom Info & Submit */}
-               
 
-                    <div className="flex justify-between items-center bg-slate-50 p-4 rounded-lg">
-                        <div>
-                            <p className="text-sm font-semibold text-[#002B2B]">
-                                ➤ PickUp Time 4pm-7pm Approx.
-                            </p>
-                            <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Estimated Cost</p>
-                            <h2 className="text-2xl font-black text-[#9ACD32]">৳{calculateCost(watch())}</h2>
-                        </div>
-                        <button type="submit" className="bg-[#9ACD32] text-[#002B2B] px-10 py-3 rounded font-bold shadow-lg hover:bg-[#88bc28]">
-                            Confirm Booking
-                        </button>
+
+                <div className="flex justify-between items-center bg-slate-50 p-4 rounded-lg">
+                    <div>
+                        <p className="text-sm font-semibold text-[#002B2B]">
+                            ➤ PickUp Time 4pm-7pm Approx.
+                        </p>
+                        <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Estimated Cost</p>
+                        <h2 className="text-2xl font-black text-[#9ACD32]">৳{calculateCost(watch())}</h2>
                     </div>
-                
+                    <button type="submit" className="bg-[#9ACD32] text-[#002B2B] px-10 py-3 rounded font-bold shadow-lg hover:bg-[#88bc28]">
+                        Update Booking
+                    </button>
+                </div>
+
 
             </form>
-        </div >
+        </div>
     );
 };
 
-export default SendParcel;
+export default UpdateParcel;
