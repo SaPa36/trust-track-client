@@ -20,30 +20,33 @@ const MyParcel = () => {
         },
     });
 
-    // Cancel Logic
-    const handleCancel = async (id, status) => {
-        if (status !== 'pending') {
-            return Swal.fire("Cannot Cancel", "Only pending parcels can be cancelled.", "error");
+    // Delete Logic
+    const handleDelete = async (id, status) => {
+        // 1. Logic check
+        if (status !== 'not_delivered') {
+            return Swal.fire("Error", "Cannot delete this parcel", "error");
         }
 
+        // 2. Simple Delete
         Swal.fire({
             title: "Are you sure?",
-            text: "You want to cancel this booking?",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#002B2B",
-            confirmButtonText: "Yes, cancel it!"
+            confirmButtonText: "Yes, delete!"
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const res = await axiosSecure.patch(`/parcels/cancel/${id}`);
-                    if (res.data.modifiedCount > 0) {
+                    // REMOVE THE LEADING SLASH HERE: 'parcels/' instead of '/parcels/'
+                    const res = await axiosSecure.delete(`parcels/${id}`);
+
+                    if (res.data.deletedCount > 0) {
                         refetch();
-                        Swal.fire("Cancelled!", "Your booking has been cancelled.", "success");
+                        Swal.fire("Deleted!", "Success", "success");
                     }
                 } catch (err) {
-                    Swal.fire("Error", "Something went wrong", "error");
+                    // This will show exactly what the error is
+                    console.log(err);
+                    Swal.fire("Error", err.message, "error");
                 }
             }
         });
@@ -120,8 +123,8 @@ const MyParcel = () => {
                                     {/* PAYMENT STATUS */}
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${parcel.payment_status === 'paid'
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-amber-100 text-amber-700'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-amber-100 text-amber-700'
                                             }`}>
                                             {parcel.payment_status || 'pending'}
                                         </span>
@@ -130,8 +133,8 @@ const MyParcel = () => {
                                     {/* DELIVERY STATUS */}
                                     <td className="px-6 py-4">
                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${parcel.delivery_status === 'delivered'
-                                                ? 'bg-emerald-100 text-emerald-700'
-                                                : 'bg-slate-100 text-slate-500'
+                                            ? 'bg-emerald-100 text-emerald-700'
+                                            : 'bg-slate-100 text-slate-500'
                                             }`}>
                                             {parcel.delivery_status?.replace('_', ' ')}
                                         </span>
@@ -149,16 +152,16 @@ const MyParcel = () => {
                                                 <Edit3 size={18} />
                                             </Link>
                                             <button
-                                                onClick={() => handleCancel(parcel._id, parcel.delivery_status)}
-                                                // Removed disabled={...} and the grey-out logic
+                                                onClick={() => handleDelete(parcel._id, parcel.delivery_status)}
+                                                title="Delete Parcel"
                                                 className="p-2 rounded-lg transition-all text-red-500 hover:bg-red-50"
-                                                title="Cancel Booking"
                                             >
                                                 <Trash2 size={18} />
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
+
                             ))}
                         </tbody>
                     </table>
