@@ -1,11 +1,35 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import React, { useState } from 'react';
 import { CreditCard, Lock } from 'lucide-react';
+import { useParams } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const PaymentForm = () => {
     const stripe = useStripe();
     const elements = useElements();
     const [error, setError] = useState(null);
+    const {parcelId} = useParams();
+    const axiosSecure = useAxiosSecure();
+
+    const {data: parcelInfo, isLoading} = useQuery({
+        queryKey: ['parcel', parcelId],
+        queryFn: async () => {
+            // Simulate an API call to fetch parcel information
+            const res = await axiosSecure.get(`/parcels/${parcelId}`);
+            return res.data;
+        }
+    });
+
+    if (isLoading) {
+        return <div className="p-10 text-center font-bold text-[#002B2B] animate-pulse">Loading payment details...</div>;
+    }
+
+    if (!parcelInfo) {
+        return <div className="p-10 text-center font-bold text-[#002B2B]">Parcel not found</div>;
+    }
+
+    const amount = parcelInfo.cost;
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -36,7 +60,7 @@ const PaymentForm = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden mt-10">
+        <div className="max-w-md mx-auto mt-5  bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
         {/* Header Decor */}
         <div className="bg-[#002B2B] p-6 text-white flex justify-between items-center">
             <div>
@@ -79,7 +103,7 @@ const PaymentForm = () => {
             {/* Price Display */}
             <div className="flex justify-between items-center py-4 border-t border-b border-slate-50">
                 <span className="text-slate-500 font-medium">Total Amount:</span>
-                {/* <span className="text-2xl font-black text-[#002B2B]">৳{parcel?.cost || 0}</span> */}
+                <span className="text-2xl font-black text-[#002B2B]">৳{amount || 0}</span>
             </div>
 
             {/* Pay Button */}
@@ -100,9 +124,7 @@ const PaymentForm = () => {
                 </div>
             )}
 
-            <p className="text-center text-[10px] text-slate-400 uppercase tracking-tight">
-                Encrypted by Stripe. No card data is stored on our servers.
-            </p>
+        
         </form>
     </div>
     );
